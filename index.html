@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EliteSoftware Build Automations :: Native C++ CLI Build Suite | EliteSoftwareTech.cc</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
+    <link rel="icon" type="image/png" href="/favicon.png?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-primary: "Montserrat Alternates", "Segoe UI Semibold", sans-serif;
+            --font-body: "Segoe UI", Tahoma, Arial, sans-serif;
+            --glass-bg: rgba(255, 255, 255, 0.56);
+            --panel-bg: rgba(255, 255, 255, 0.92);
+            --vista-blue-dark: #003b75;
+            --border-glass: rgba(255, 255, 255, 0.8);
+            --border-dark: rgba(19, 75, 134, 0.28);
+            --teal-accent: #0b7a75;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-body);
+            background-color: #032245;
+            background-image:
+                radial-gradient(ellipse at 14% 12%, rgba(56, 224, 255, 0.5) 0%, transparent 45%),
+                radial-gradient(ellipse at 78% 84%, rgba(30, 240, 175, 0.35) 0%, transparent 48%),
+                linear-gradient(145deg, #041d3d 0%, #094580 35%, #0a6ea8 68%, #0c8e8a 100%),
+                url('https://www.transparenttextures.com/patterns/pinstriped-suit.png');
+            background-attachment: fixed;
+            color: #102030;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .shell {
+            max-width: 1200px;
+            margin: 24px auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 12, 30, 0.58);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(180deg, #1d3147 0%, #102033 49%, #081320 50%, #0f2b3c 100%);
+            border-bottom: 1px solid #040a12;
+            padding: 16px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .brand-orb { width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 3px 10px rgba(0,220,210,0.35)); }
+        .brand h1 { font-family: var(--font-primary); font-size: 24px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        .brand p { font-size: 11px; color: #6ce8e0; text-transform: uppercase; letter-spacing: 1.3px; font-weight: 700; }
+        nav { display: flex; gap: 8px; flex-wrap: wrap; }
+        .aero-btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px;
+            border-radius: 5px; border: 1px solid #1c5b99;
+            background: linear-gradient(180deg, #eff7ff 0%, #cde4fc 49%, #b4d4f7 50%, #d3e8ff 100%);
+            color: #0a3460; text-decoration: none; font-family: var(--font-primary); font-size: 13px; font-weight: 600;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.16);
+        }
+        .aero-btn:hover { background: linear-gradient(180deg, #ffffff 0%, #dceeff 49%, #c1e0ff 50%, #e4f2ff 100%); }
+        .aero-btn.primary {
+            background: linear-gradient(180deg, #2ebdb3 0%, #148c84 49%, #0b6962 50%, #16827a 100%);
+            color: #fff; border-color: #074742; text-shadow: 0 -1px 0 rgba(0,0,0,0.45);
+        }
+        .aero-btn.green {
+            background: linear-gradient(180deg, #43d682 0%, #24a85d 49%, #1b8c4b 50%, #27ad61 100%);
+            color: #fff; border-color: #146938; text-shadow: 0 -1px 0 rgba(0,0,0,0.35);
+        }
+        .hero {
+            padding: 32px 28px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(226,240,255,0.86) 100%);
+            border-bottom: 1px solid var(--border-dark);
+        }
+        .hero h2 { font-family: var(--font-primary); font-size: 28px; color: #063566; margin-bottom: 10px; }
+        .hero p { max-width: 860px; font-size: 14px; color: #1f3954; margin-bottom: 18px; }
+        .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        main { padding: 26px 28px 34px; display: grid; gap: 20px; }
+        .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+        .panel {
+            background: var(--panel-bg); border: 1px solid var(--border-dark); border-radius: 8px;
+            padding: 20px; box-shadow: inset 0 1px 0 #fff, 4px 10px 22px rgba(0, 18, 44, 0.22);
+        }
+        .panel h3 {
+            font-family: var(--font-primary); font-size: 18px; color: #093b70;
+            margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #dff7f5; color: var(--teal-accent); border: 1px solid #8ad4ce; }
+        .panel ul { margin-left: 18px; display: grid; gap: 6px; font-size: 13px; color: #21384f; }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .tool-card {
+            background: #f5faff; border: 1px solid #bdd4ec; border-radius: 7px; padding: 12px;
+        }
+        .tool-card h4 { font-family: Consolas, monospace; font-size: 13px; color: #003b75; margin-bottom: 4px; }
+        .tool-card p { font-size: 12px; color: #36506b; }
+        pre {
+            background: #07192b; color: #8ceeff; padding: 14px; border-radius: 7px;
+            overflow-x: auto; font-size: 12px; font-family: Consolas, monospace; margin-top: 8px;
+        }
+        code { font-family: Consolas, monospace; background: #e9f2fc; padding: 1px 5px; border-radius: 3px; font-size: 12px; color: #0d3d6e; }
+        footer {
+            background: rgba(15, 45, 82, 0.92); color: #d6e7fa; padding: 16px 26px; font-size: 12px;
+            display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+        }
+        footer a { color: #8ad3ff; text-decoration: none; font-weight: 600; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header>
+            <div class="brand">
+                <img class="brand-orb" src="/favicon.png?v=2" alt="EliteSoftware Logo" />
+                <div>
+                    <h1>EliteSoftware Build Automations</h1>
+                    <p>Native C++ CLI Build &amp; Packaging Suite &bull; EliteSoftware Tech Co.</p>
+                </div>
+            </div>
+            <nav>
+                <a class="aero-btn green" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations/releases/download/v1.0.2.6/EliteSoftware-Build-Automations_x64.zip">Download x64 Suite (v1.0.2.6)</a>
+                <a class="aero-btn primary" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations/releases/download/v1.0.2.6/EliteSoftware-Build-Automations_x86.zip">Download x86 Suite</a>
+                <a class="aero-btn" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations" target="_blank" rel="noopener">GitHub Repo</a>
+                <a class="aero-btn" href="https://main.elitesoftwaretech.cc/">Main Portal</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h2>40+ Natively Compiled C++ CLI Build, Signing &amp; PE Tooling Binaries</h2>
+            <p>
+                <strong>EliteSoftware_Build-Automations</strong> replaces fragile per-repo batch and PowerShell build glue with a fast, configuration-driven native C++ CLI suite (<code>BuildOutputx64</code> &amp; <code>BuildOutputx86</code>). Driven by <code>Build_Configurations/*.config</code> JSON specs, <code>EliteBuild.exe</code> orchestrates process termination, MSVC/GCC compilation, PE resource &amp; icon forging, Authenticode signing, Inno Setup packaging, and backup archiving.
+            </p>
+            <div class="hero-actions">
+                <a class="aero-btn green" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations/releases/download/v1.0.2.6/EliteSoftware-Build-Automations_x64.zip">Download x64 Suite ZIP (v1.0.2.6)</a>
+                <a class="aero-btn primary" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations/releases/download/v1.0.2.6/EliteSoftware-Build-Automations_x86.zip">Download x86 Suite ZIP</a>
+                <a class="aero-btn" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations/releases" target="_blank" rel="noopener">All Releases</a>
+                <a class="aero-btn" href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations" target="_blank" rel="noopener">Browse Source</a>
+            </div>
+        </section>
+
+        <main>
+            <div class="two-col">
+                <section class="panel">
+                    <h3>Configuration-Driven Pipeline <span class="tag">ELITEBUILD.EXE</span></h3>
+                    <ul>
+                        <li>Place your source files in <code>src\</code> and JSON target specs in <code>Build_Configurations\*.config</code>.</li>
+                        <li>Drop or symlink <code>EliteBuild.exe</code> into the project root (using <code>EliteSymlinker.exe</code>) and run it with zero per-repo boilerplate scripts.</li>
+                        <li>Automatically kills locking executables, compiles <code>GccTargets</code> / MSVC targets, logs all pipe output to <code>EliteBuild.log</code>, and invokes <code>EliteEasySigner.exe</code>.</li>
+                        <li>Supports <code>--ai-mode</code> across tools to suppress interactive prompts for headless CI and AI agent execution.</li>
+                    </ul>
+                </section>
+
+                <section class="panel">
+                    <h3>Example <code>Build_Configurations/Tool.config</code> <span class="tag">JSON SPEC</span></h3>
+                    <pre>{
+    "GccTargets": [
+        "g++ -m64 -O3 -o \"BuildOutputx64\\MyTool.exe\" \"src\\main.cpp\" -lole32 -luuid -lshell32"
+    ],
+    "KillProcesses": [
+        "MyTool.exe"
+    ]
+}</pre>
+                </section>
+            </div>
+
+            <section class="panel">
+                <h3>Flagship Tools in the Master Suite <span class="tag">40+ BINARIES IN v1.0.2.6</span></h3>
+                <div class="tool-grid">
+                    <div class="tool-card"><h4>EliteBuild.exe &amp; EliteBuild_Compiler.exe</h4><p>Ingests <code>Build_Configurations\*.config</code>, kills locked processes, compiles targets, and chains signing &amp; packaging.</p></div>
+                    <div class="tool-card"><h4>EliteEasySigner.exe &amp; EliteCertManager.exe</h4><p>Signs built binaries with embedded PFX certificates and supports zero-config output directory detection.</p></div>
+                    <div class="tool-card"><h4>EliteIconReplacer.exe &amp; EliteRCManager.exe</h4><p>Generates <code>.rc</code> scripts, compiles via <code>windres</code>, swaps PE <code>RT_GROUP_ICON</code>, and rebases PE header checksums.</p></div>
+                    <div class="tool-card"><h4>ResourceAlchemyHacker_CLI.exe</h4><p>Scriptable CLI PE surgeon for injecting, extracting, and mutating icons and string tables.</p></div>
+                    <div class="tool-card"><h4>EliteSmartRegsvr.exe &amp; EliteCLSIDGenerator.exe</h4><p>Inspects PE headers to route 32/64-bit COM DLLs to the right <code>regsvr32.exe</code> and checks Registry for CLSID collisions.</p></div>
+                    <div class="tool-card"><h4>EliteInnoCreator.exe &amp; EliteBuild_Packager.exe</h4><p>Generates Inno Setup <code>.iss</code> scripts and packages release archives cleanly.</p></div>
+                    <div class="tool-card"><h4>EliteProjectBackup.exe &amp; EliteRegSnapshot.exe</h4><p>Compresses project trees into WIM/CAB snapshots and captures registry states around builds.</p></div>
+                    <div class="tool-card"><h4>EliteServiceForge.exe &amp; EliteLaunchAsTI.exe</h4><p>Windows service scaffolding, TrustedInstaller launching, and <code>EliteExecPolToggle.exe</code> / <code>EliteEnvManager.exe</code>.</p></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div>
+                <strong>EliteSoftware_Build-Automations</strong> &bull; EliteSoftware Tech Co. | TheShadyRainbow4 | {Zach}
+            </div>
+            <div>
+                <a href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations" target="_blank" rel="noopener">Source Repository</a> &bull;
+                <a href="https://github.com/EliteSoftwareTech-cc/EliteSoftware_Build-Automations/releases/tag/v1.0.2.6" target="_blank" rel="noopener">Release v1.0.2.6</a>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
